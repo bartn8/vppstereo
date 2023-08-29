@@ -1,0 +1,3 @@
+[submodule "thirdparty/stereo-vision"]
+	path = thirdparty/stereo-vision
+	url = git@github.com:bartn8/stereo-vision.git
