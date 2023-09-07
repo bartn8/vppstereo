@@ -1,0 +1,9 @@
+cmapy
+numba
+numpy
+opencv_python
+opt_einsum
+Pillow
+scipy
+torch
+tqdm
