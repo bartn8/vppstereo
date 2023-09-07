@@ -317,7 +317,7 @@ def _virtual_projection_scan_rnd(l, r, g, uniform_color, wsize, direction, c, c_
     
     return sample_i
 
-def vpp(left, right, gt, wsize = 3, wsizeAgg_x = 64, wsizeAgg_y = 3, left2right = True, blending = 0.4, uniform_color = False, method="rnd", adaptiveThreshold = 15, useAdaptiveTh = True, c_occ = 0.00, g_occ = None, discard_occ = False, interpolate = True):
+def vpp(left, right, gt, wsize = 3, wsizeAgg_x = 64, wsizeAgg_y = 3, left2right = True, blending = 0.4, uniform_color = False, method="rnd", c_occ = 0.00, g_occ = None, discard_occ = False, interpolate = True):
     lc,rc = np.copy(left), np.copy(right)
     gt = gt.astype(np.float32)
 

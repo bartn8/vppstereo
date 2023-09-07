@@ -81,16 +81,13 @@ class RAFTStereo(nn.Module):
         return up_flow.reshape(N, D, factor*H, factor*W)
 
 
-    def forward(self, image0, image2, image3, hints=None, validhints=None, iters=12, flow_init=None, test_mode=False, normalize=False, separate_context = True):
+    def forward(self, image0, image2, image3, hints=None, validhints=None, iters=12, flow_init=None, test_mode=False, normalize=False):
         """ Estimate optical flow between pair of frames """
 
         if normalize:
             image0 = (2 * (image0) - 1.0).contiguous()
             image2 = (2 * (image2) - 1.0).contiguous()
             image3 = (2 * (image3) - 1.0).contiguous()
-
-        if not separate_context:
-            image0 = image2
 
         # run the context network
         with autocast(enabled=self.mixed_precision):

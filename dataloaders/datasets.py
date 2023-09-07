@@ -435,7 +435,7 @@ def fetch_dataloader(args):
                 pin_memory=False, shuffle=False, num_workers=1, drop_last=True)
             print('Testing with %d image pairs' % len(dataset))
     
-    elif args.dataset == 'middlebury':
+    elif args.dataset in ['middlebury', 'eth3d']:
         if args.test:
             dataset = MiddleburyDataset(args.datapath,test=True)
             loader = data.DataLoader(dataset, batch_size=args.batch_size, 

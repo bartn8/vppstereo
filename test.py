@@ -48,12 +48,12 @@ parser.add_argument('--iscale', type=int, default=1,
 parser.add_argument('--oscale', type=int, default=1,
                             help='Downsampling factor')
 
-parser.add_argument('--vpp', default='handcrafted', choices=['handcrafted', 'none'])
+parser.add_argument('--vpp', action='store_true')
 parser.add_argument('--seed', type=int, default=1, metavar='S', help='random seed (default: 1)')
 parser.add_argument('--wsize', type=int, default=5, help='Patch size')
 parser.add_argument('--wsizeAgg_x', type=int, default=64, help='Patch size')
 parser.add_argument('--wsizeAgg_y', type=int, default=3, help='Patch size')
-parser.add_argument('--adaptivepatch', action='store_true')
+
 parser.add_argument('--guideperc', type=float, default=0.05)
 parser.add_argument('--blending', type=float, default=0.1, help='Pattern alpha blending')
 parser.add_argument('--valsize', type=int, default=0, help='validation max size (0=unlimited)')
@@ -64,7 +64,6 @@ parser.add_argument('--discard_occ', action='store_true')
 parser.add_argument('--r2l', action='store_true')
 parser.add_argument('--colormethod', default='rnd', choices=['rnd', 'maxDistance'])
 parser.add_argument('--uniform_color', action='store_true')
-parser.add_argument('--vanilla', action='store_true')
 parser.add_argument('--guided', action='store_true')
 parser.add_argument('--tries', type=int, default=1)
 
@@ -181,7 +180,7 @@ def run(data):
         data['hints'] = F.pad(data['hints'], _pad, mode='replicate')
         data['validhints'] = F.pad(data['validhints'], _pad, mode='replicate')
 
-    if args.vpp in ['handcrafted']:
+    if args.vpp:
         data['im2_vpp'], data['im3_vpp'] = data['im2_blended'], data['im3_blended']
     else:
         data['im2_vpp'], data['im3_vpp'] = data['im2'], data['im3']
@@ -207,7 +206,7 @@ def run(data):
         pred_disps = torch.cat(pred_disps_list, 0)
     elif args.stereomodel == 'raft-stereo':
         _,pred_disps = stereonet(data['im2'], data['im2_vpp'], data['im3_vpp'], 
-        test_mode=True, iters=32, normalize=args.normalize, separate_context=(not args.vanilla),
+        test_mode=True, iters=32, normalize=args.normalize,
         hints=inject_hints, validhints=inject_validhints)
     elif args.stereomodel == 'psmnet':
         pred_disps = stereonet(im2=data['im2_vpp'], im3=data['im3_vpp'], hints=inject_hints, validhints=inject_validhints)
