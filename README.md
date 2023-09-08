@@ -71,7 +71,7 @@ We virtually project a pattern over the left and right images according to the s
 
 ## :movie_camera: Watch Our Research Video!
 
-<a href="https://youtu.be/m7dqHkxb4yg">
+<a href="#">
   <img src="./images/slide_title.jpg" alt="Watch the video" width="800">
 </a>
 
@@ -80,7 +80,7 @@ We virtually project a pattern over the left and right images according to the s
 ## :inbox_tray: Pretrained Models
 
 Here, you can download the weights of **RAFT-Stereo** and **PSMNet** architectures. 
-- **Vanilla Models**: these models are pretrained on Sceneflow vanilla images (_sceneflow/_) and Middlebury vanilla images (_*-middlebury.*_)
+- **Vanilla Models**: these models are pretrained on Sceneflow vanilla images and Middlebury vanilla images
   - PSMNet vanilla models: _psmnet/sceneflow/psmnet.tar_, _psmnet/middlebury/psmnet.tar_
   - RAFT-Stereo vanilla models (_raft-stereo/sceneflow/raftstereo.pth_ and _raft-stereo/middlebury/raftstereo.pth_) are just a copy from [authors' drive](https://drive.google.com/drive/folders/1booUFYEXmsdombVuglatP0nZXb5qI89J)
 - **Fine-tuned Models**: starting from vanilla models, these models (_*-vpp-ft.tar_) are finetuned in the same domain but with virtual projected images
