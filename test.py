@@ -151,8 +151,7 @@ def run(data):
     
     data['im2_blended'], data['im3_blended'] = vpp( (255*data['im2'][0].permute(1,2,0).numpy()).astype(np.uint8),
                                                     (255*data['im3'][0].permute(1,2,0).numpy()).astype(np.uint8),
-                                                    data['hints'][0,0].numpy(), blending=args.blending,
-                                                     useAdaptiveTh=args.adaptivepatch, wsize=wsize, wsizeAgg_x=args.wsizeAgg_x, wsizeAgg_y=args.wsizeAgg_y,
+                                                    data['hints'][0,0].numpy(), blending=args.blending, wsize=wsize, wsizeAgg_x=args.wsizeAgg_x, wsizeAgg_y=args.wsizeAgg_y,
                                                       c_occ=args.cblending, g_occ=mask_occ,
                                                       left2right= (not args.r2l), method=args.colormethod, uniform_color=args.uniform_color )
 
