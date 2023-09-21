@@ -71,7 +71,7 @@ We virtually project a pattern over the left and right images according to the s
 
 ## :movie_camera: Watch Our Research Video!
 
-<a href="#">
+<a href="https://vppstereo.github.io/#myvideo">
   <img src="./images/slide_title.jpg" alt="Watch the video" width="800">
 </a>
 
