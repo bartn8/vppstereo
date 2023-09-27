@@ -60,12 +60,13 @@ We virtually project a pattern over the left and right images according to the s
 :fountain_pen: If you find this code useful in your research, please cite:
 
 ```bibtex
-@inproceedings{Bartolomei_2023_ICCV,
+@InProceedings{Bartolomei_2023_ICCV,
     author    = {Bartolomei, Luca and Poggi, Matteo and Tosi, Fabio and Conti, Andrea and Mattoccia, Stefano},
-    title     = {Active Stereo Without Projector},
+    title     = {Active Stereo Without Pattern Projector},
     booktitle = {Proceedings of the IEEE/CVF International Conference on Computer Vision (ICCV)},
     month     = {October},
-    year      = {2023}
+    year      = {2023},
+    pages     = {18470-18482}
 }
 ```
 
