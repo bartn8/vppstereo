@@ -132,7 +132,7 @@ To run the `test.py` script with the correct arguments, follow the instructions 
 
    ```shell
    python test.py  --datapath <path_to_dataset> --dataset <dataset_type> --stereomodel <model_name> \
-    --loadstereomodel <path_to_pretrained_model> --maxdisp 192 --outdir <output_directory> \
+    --loadstereomodel <path_to_pretrained_model> --maxdisp 192 \
     --vpp --outdir <save_dmap_dir> --wsize 3 --guideperc 0.05 --blending 0.4 --iscale <input_image_scale> \
     --maskocc
 
