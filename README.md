@@ -206,7 +206,6 @@ the weights provided by the authors. Again, VPP sensibly boosts the accuracy of 
 
 For questions, please send an email to luca.bartolomei5@unibo.it
 
-
 ## :pray: Acknowledgements
 
 We would like to extend our sincere appreciation to the authors of the following projects for making their code available, which we have utilized in our work:
@@ -214,3 +213,5 @@ We would like to extend our sincere appreciation to the authors of the following
 - We would like to thank the authors of [PSMNet](https://github.com/JiaRenChang/PSMNet), [RAFT-Stereo](https://github.com/princeton-vl/RAFT-Stereo),[rSGM](https://github.com/ivankreso/stereo-vision) for providing their code, which has been instrumental in our stereo matching experiments.
 
 We deeply appreciate the authors of the competing research papers for provision of code and model weights, which greatly aided accurate comparisons.
+
+<h5 align="center">Patent pending - University of Bologna</h5>
