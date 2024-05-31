@@ -1,10 +1,10 @@
 
 <h1 align="center"> Active Stereo Without Pattern Projector (ICCV 2023) </h1> 
-
+<h1 align="center"> Stereo-Depth Fusion through Virtual Pattern Projection (Journal Extension) </h1> 
 
 <br>
 
-:rotating_light: This repository contains download links to our code, and trained deep stereo models of our work  "**Active Stereo Without Pattern Projector**",  [ICCV 2023](https://iccv2023.thecvf.com/)
+:rotating_light: This repository contains download links to our code, and trained deep stereo models of our works  "**Active Stereo Without Pattern Projector**",  [ICCV 2023](https://iccv2023.thecvf.com/) and "**Stereo-Depth Fusion through Virtual Pattern Projection**", Journal Extension
  
 by [Luca Bartolomei](https://bartn8.github.io/)<sup>1,2</sup>, [Matteo Poggi](https://mattpoggi.github.io/)<sup>2</sup>, [Fabio Tosi](https://fabiotosi92.github.io/)<sup>2</sup>, [Andrea Conti](https://andreaconti.github.io/)<sup>2</sup>, and [Stefano Mattoccia](https://github.com/stefano-mattoccia)<sup>1,2</sup>
 
@@ -13,10 +13,11 @@ University of Bologna<sup>2</sup>
 
 <div class="alert alert-info">
 
-
 <h2 align="center"> 
 
-[Project Page](https://vppstereo.github.io/) | [Paper](https://vppstereo.github.io/assets/paper.pdf) |  [Supplementary](https://vppstereo.github.io/assets/paper-supp.pdf) | [Poster](https://vppstereo.github.io/assets/poster.pdf)
+ Active Stereo Without Pattern Projector (ICCV 2023)<br>
+
+ [Project Page](https://vppstereo.github.io/) | [Paper](https://vppstereo.github.io/assets/paper.pdf) |  [Supplementary](https://vppstereo.github.io/assets/paper-supp.pdf) | [Poster](https://vppstereo.github.io/assets/poster.pdf)
 </h2>
 
 **Note**: 🚧 Kindly note that this repository is currently in the development phase. We are actively working to add and refine features and documentation. We apologize for any inconvenience caused by incomplete or missing elements and appreciate your patience as we work towards completion.
@@ -29,6 +30,7 @@ University of Bologna<sup>2</sup>
 - [:inbox\_tray: Pretrained Models](#inbox_tray-pretrained-models)
 - [:memo: Code](#memo-code)
   - [:hammer\_and\_wrench: Setup Instructions](#hammer_and_wrench-setup-instructions)
+- [:floppy_disk: Datasets](#floppy_disk-datasets)
 - [:rocket: Test](#rocket-test)
 - [:art: Qualitative Results](#art-qualitative-results)
 - [:envelope: Contacts](#envelope-contacts)
@@ -55,7 +57,6 @@ We virtually project a pattern over the left and right images according to the s
 * When dealing with deep networks trained on synthetic data, it dramatically improves accuracy and shows a compelling ability to tackle domain shift issues, even without additional training or fine-tuning.
 
 * By neglecting a physical pattern projector, our solution works under sunlight, both indoors and outdoors, at long and close ranges with no additional processing cost for the original stereo matcher.
-
 
 :fountain_pen: If you find this code useful in your research, please cite:
 
@@ -117,9 +118,271 @@ Please refer to each section for detailed instructions on setup and execution.
   - Build and install pyrSGM package: `python setup.py build_ext --inplace install`
 
 
+## :floppy_disk: Datasets
+We used seven datasets for training and evaluation.
+
+### Middlebury
+
+**Midd-14**: We used the [MiddEval3](https://vision.middlebury.edu/stereo/eval3/) training split for evaluation and fine-tuning purposes.
+
+```bash
+$ cd PATH_TO_DOWNLOAD
+$ wget https://vision.middlebury.edu/stereo/submit3/zip/MiddEval3-data-F.zip
+$ wget https://vision.middlebury.edu/stereo/submit3/zip/MiddEval3-GT0-F.zip
+$ unzip \*.zip
+```
+
+After that, you will get a data structure as follows:
+
+```
+MiddEval3
+├── TrainingF
+│    ├── Adirondack
+│    │    ├── im0.png
+│    │    └── ...
+|    ...
+|    └── Vintage
+│         └── ...
+└── TestF
+     └── ...
+```
+
+
+**Midd-A**: We used the [Scenes2014](https://vision.middlebury.edu/stereo/data/scenes2014/) additional split for evaluation and grid-search purposes.
+
+```bash
+$ cd PATH_TO_DOWNLOAD
+$ wget https://vision.middlebury.edu/stereo/data/scenes2014/zip/Backpack-perfect.zip
+$ wget https://vision.middlebury.edu/stereo/data/scenes2014/zip/Bicycle1-perfect.zip
+$ wget https://vision.middlebury.edu/stereo/data/scenes2014/zip/Cable-perfect.zip
+$ wget https://vision.middlebury.edu/stereo/data/scenes2014/zip/Classroom1-perfect.zip
+$ wget https://vision.middlebury.edu/stereo/data/scenes2014/zip/Couch-perfect.zip
+$ wget https://vision.middlebury.edu/stereo/data/scenes2014/zip/Flowers-perfect.zip
+$ wget https://vision.middlebury.edu/stereo/data/scenes2014/zip/Mask-perfect.zip
+$ wget https://vision.middlebury.edu/stereo/data/scenes2014/zip/Shopvac-perfect.zip
+$ wget https://vision.middlebury.edu/stereo/data/scenes2014/zip/Sticks-perfect.zip
+$ wget https://vision.middlebury.edu/stereo/data/scenes2014/zip/Storage-perfect.zip
+$ wget https://vision.middlebury.edu/stereo/data/scenes2014/zip/Sword1-perfect.zip
+$ wget https://vision.middlebury.edu/stereo/data/scenes2014/zip/Sword2-perfect.zip
+$ wget https://vision.middlebury.edu/stereo/data/scenes2014/zip/Umbrella-perfect.zip
+$ unzip \*.zip
+```
+
+After that, you will get a data structure as follows:
+
+```
+middlebury2014
+├── Backpack-perfect
+│    ├── im0.png
+│    └── ...
+...
+└── Umbrella-perfect
+     └── ...
+```
+
+**Midd-21**: We used the [Scenes2021](https://vision.middlebury.edu/stereo/data/scenes2021/) split for evaluation purposes.
+
+```bash
+$ cd PATH_TO_DOWNLOAD
+$ wget https://vision.middlebury.edu/stereo/data/scenes2021/zip/all.zip
+$ unzip all.zip
+$ mv data/* .
+```
+
+After that, you will get a data structure as follows:
+
+```
+middlebury2021
+├── artroom1
+│    ├── im0.png
+│    └── ...
+...
+└── traproom2
+     └── ...
+```
+
+Note that additional datasets are available at the [official website](https://vision.middlebury.edu/stereo/data/).
+
+### KITTI142
+
+We based our KITTI142 validation split from [KITTI141](https://github.com/XuelianCheng/LidarStereoNet) (we added frame 000124). You can download it from our drive using this script:
+
+```bash
+$ cd PATH_TO_DOWNLOAD
+$ gdown --fuzzy https://drive.google.com/file/d/1A14EMqcGLDhH3nTHTVFpSP2P7We0SY-C/view?usp=drive_link
+$ unzip kitti142.zip
+```
+
+After that, you will get a data structure as follows:
+
+```
+kitti142
+├── image_2
+│    ├── 000002_10.png
+|    ...
+│    └── 000199_10.png
+├── image_3
+│    ├── 000002_10.png
+|    ...
+│    └── 000199_10.png
+├── lidar_disp_2
+│    ├── 000002_10.png
+|    ...
+│    └── 000199_10.png
+├── disp_occ
+│    ├── 000002_10.png
+|    ...
+│    └── 000199_10.png
+...
+```
+
+Note that additional information are available at the [official website](https://www.cvlibs.net/datasets/kitti/eval_scene_flow.php?benchmark=stereo).
+
+### ETH3D
+
+You can download [ETH3D](https://www.eth3d.net/datasets#low-res-two-view-training-data) dataset following this script:
+
+```bash
+$ cd PATH_TO_DOWNLOAD
+$ wget https://www.eth3d.net/data/two_view_training.7z
+$ wget https://www.eth3d.net/data/two_view_training_gt.7z
+$ p7zip -d *.7z
+```
+
+After that, you will get a data structure as follows:
+
+```
+eth3d
+├── delivery_area_1l
+│    ├── im0.png
+│    └── ...
+...
+└── terrains_2s
+     └── ...
+```
+Note that the script erases 7z files. Further details are available at the [official website](https://www.eth3d.net/datasets).
+
+### DSEC
+
+We provide preprocessed DSEC testing splits _Day_, _Afternoon_ and _Night_:
+
+```bash
+$ cd PATH_TO_DOWNLOAD
+$ gdown --folder https://drive.google.com/drive/folders/1etkvdntDfMdwvx_NP0_QJcUcsogLXYK7?usp=drive_link
+$ cd dsec
+$ unzip -o \*.zip
+$ cd ..
+$ mv dsec/* .
+$ rmdir dsec
+```
+
+After that, you will get a data structure as follows:
+
+```
+dsec
+├── afternoon
+│    ├── left
+|    |    ├── 000000.png
+|    |    ...
+│    └── ...
+...
+└── night
+     └── ...
+```
+
+We managed to extract the splits using only data from the [official website](https://dsec.ifi.uzh.ch/dsec-datasets/download/).
+We used [FasterLIO](https://github.com/gaoxiang12/faster-lio) to de-skew raw LiDAR scans and [Open3D](https://github.com/isl-org/Open3D) to perform ICP registration.
+
+### M3ED
+
+We provide preprocessed M3ED testing splits _Outdoor Day_, _Outdoor Night_ and _Indoor_:
+
+
+```bash
+$ cd PATH_TO_DOWNLOAD
+$ gdown --folder https://drive.google.com/drive/folders/1n-7H11ZfbPcR9_F0Ri2CcTJS2WWQlfCo?usp=drive_link
+$ cd m3ed
+$ unzip -o \*.zip
+$ cd ..
+$ mv m3ed/* .
+$ rmdir m3ed
+```
+
+After that, you will get a data structure as follows:
+
+```
+m3ed
+├── indoor
+│    ├── left
+|    |    ├── 000000.png
+|    |    ...
+│    └── ...
+...
+└── night
+     └── ...
+```
+
+We managed to extract the splits using only data from the [official website](https://github.com/daniilidis-group/m3ed).
+
+### M3ED Active
+
+We provide preprocessed M3ED Active testing splits _Passive_, and _Active_:
+
+
+```bash
+$ cd PATH_TO_DOWNLOAD
+$ gdown --folder https://drive.google.com/drive/folders/1fv6f2mQUPW8MwSsGy1f0dEHOZCS4sk2-?usp=drive_link
+$ cd m3ed_active
+$ unzip -o \*.zip
+$ cd ..
+$ mv m3ed_active/* .
+$ rmdir m3ed_active
+```
+
+After that, you will get a data structure as follows:
+
+```
+m3ed_active
+├── passive
+│    ├── left
+|    |    ├── 000000.png
+|    |    ...
+│    └── ...
+└── active
+     └── ...
+```
+
+We managed to extract the splits using only data from the [official website](https://github.com/daniilidis-group/m3ed).
+
+### SIMSTEREO
+
+You can download [SIMSTEREO](https://arxiv.org/abs/2209.08305) dataset [here](https://ieee-dataport.org/open-access/active-passive-simstereo).
+
+After that, you will get a data structure as follows:
+
+```
+simstereo
+├── test
+│    ├── nirColormanaged
+|    |    ├── abstract_bowls_1_left.jpg
+|    |    ├── abstract_bowls_1_right.jpg
+|    |    ...
+│    ├── rgbColormanaged
+|    |    ├── abstract_bowls_1_left.jpg
+|    |    ├── abstract_bowls_1_right.jpg
+|    |    ...
+│    └── pfmDisp
+|         ├── abstract_bowls_1_left.pfm
+|         ├── abstract_bowls_1_right.pfm
+|         ...
+└── training
+     └── ...
+```
+
+
 ## :rocket: Test
 
-This code snippet allows you to evaluate the disparity maps on various datasets, including [KITTI (142 split)](https://www.cvlibs.net/datasets/kitti/o), [Middlebury (Training, Additional, 2021)](https://vision.middlebury.edu/stereo/data/), and [ETH3D](https://www.eth3d.net/). By executing the provided script, you can assess the accuracy of disparity estimation models on these datasets.
+This code snippet allows you to evaluate the disparity maps on various datasets, including [KITTI (142 split)](https://www.cvlibs.net/datasets/kitti/o), [Middlebury (Training, Additional, 2021)](https://vision.middlebury.edu/stereo/data/), [ETH3D](https://www.eth3d.net/), [DSEC](https://dsec.ifi.uzh.ch/), [M3ED](https://m3ed.io/), and [SIMSTEREO](https://ieee-dataport.org/open-access/active-passive-simstereo). By executing the provided script, you can assess the accuracy of disparity estimation models on these datasets.
 
 To run the `test.py` script with the correct arguments, follow the instructions below:
 
@@ -131,11 +394,19 @@ To run the `test.py` script with the correct arguments, follow the instructions 
    Run the following command, replacing the placeholders with the actual values for your images and model:
 
    ```shell
-   python test.py  --datapath <path_to_dataset> --dataset <dataset_type> --stereomodel <model_name> \
+   # Parameters to reproduce Active Stereo Without Pattern Projector (ICCV 2023)
+   CUDA_VISIBLE_DEVICES=0 python test.py  --datapath <path_to_dataset> --dataset <dataset_type> --stereomodel <model_name> \
     --loadstereomodel <path_to_pretrained_model> --maxdisp 192 \
     --vpp --outdir <save_dmap_dir> --wsize 3 --guideperc 0.05 --blending 0.4 --iscale <input_image_scale> \
     --maskocc
+   ```
 
+   ```shell
+   # Parameters to reproduce Stereo-Depth Fusion through Virtual Pattern Projection (Journal Extension)
+   CUDA_VISIBLE_DEVICES=0 python test.py  --datapath <path_to_dataset> --dataset <dataset_type> --stereomodel <model_name> \
+    --loadstereomodel <path_to_pretrained_model> --maxdisp 192 \
+    --vpp --outdir <save_dmap_dir> --wsize 7 --guideperc 0.05 --blending 0.4 --iscale <input_image_scale> \
+    --maskocc --bilateralpatch --bilateral_spatial_variance 1 --bilateral_color_variance 2 --bilateral_threshold 0.001 --rsgm_subpixel
    ```
 
   Replace the placeholders (<max_disparity>, <path_to_dataset>, <dataset_type>, etc.) with the actual values for your setup.
@@ -144,13 +415,14 @@ To run the `test.py` script with the correct arguments, follow the instructions 
 
   - `--maxdisp`: Maximum disparity range for PSMNet and rSGM (default 192).
   - `--stereomodel`: Stereo model type. Options: `raft-stereo`, `psmnet`, `rsgm`
+  - `--normalize`: Normalize RAFT-Stereo input between [-1,1] instead of [0,1] (Only for official weights)
   - `--datapath`: Specify the dataset path.
-  - `--dataset`: Specify dataset type. Options: `kitti_stereo142`, `middlebury_add`, `middlebury2021`, `middlebury`, `eth3d`
+  - `--dataset`: Specify dataset type. Options: `kitti_stereo142`, `middlebury_add`, `middlebury2021`, `middlebury`, `eth3d`, `simstereo`, `simstereoir`, `dsec`, `m3ed`
   - `--outdir`: Output directory to save the disparity maps.
   - `--loadstereomodel`: Path to the pretrained model file.
   - `--iscale` Rescale input images before apply vpp and stereo matching. Original size is restored before evaluation. Example: `--iscale 1` equals full scale, `--iscale 2` equals half scale.
-  - `--guideperc`: Simulate depth seeds using a certain percentage of randomly sampled GT points. Valid only if raw depth seed not exists.
-  - `--vpp`: Apply virtual patterns to stereo images (Default: True)
+  - `--guideperc`: Simulate depth seeds using a certain percentage of randomly sampled GT points. Valid only if raw depth seeds do  not exists.
+  - `--vpp`: Apply virtual patterns to stereo images
   - `--colormethod`: Virtual pattering strategy. Options: `rnd` (i.e., random strategy) and `maxDistance` (i.e., histogram based strategy)
   - `--uniform_color`: Uniform patch strategy
   - `--wsize`: Pattern patch size (e.g., 1, 3, 5, 7, ...)
@@ -160,6 +432,10 @@ To run the `test.py` script with the correct arguments, follow the instructions 
   - `--maskocc`: Use proposed occlusion handling
   - `--discard_occ`: Use occlusion point discard strategy
   - `--guided`: Apply Guided Stereo Matching strategy
+  - `--bilateralpatch`: Use adaptive patch based on bilateral filter
+  - `--bilateral_spatial_variance`: Spatial variance of the adaptive patch
+  - `--bilateral_color_variance`: Color variance of the adaptive patch 
+  - `--bilateral_threshold`: Adaptive patch classification threshold
 
 For more details, please refer to the `test.py` script.
 
