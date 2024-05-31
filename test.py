@@ -22,50 +22,53 @@ import cv2
 from dataloaders.datasets import fetch_dataloader
 import tqdm
 
-parser = argparse.ArgumentParser(description='PSMNet')
+from utils import color_error_image_kitti, guided_visualize
 
-parser.add_argument('--maxdisp', type=int ,default=192,
-                    help='maxium disparity')
+parser = argparse.ArgumentParser(description='Virtual Pattern Projection (VPP) - Test script')
 
-parser.add_argument('--stereomodel', default='raft-stereo',
-                    help='select model')
-
-parser.add_argument('--datapath', default='dataset/oak_dataset/',
-                    help='datapath')
+parser.add_argument('--maxdisp', type=int ,default=192, help='maxium disparity')
+parser.add_argument('--stereomodel', default='raft-stereo', help='select model')
+parser.add_argument('--datapath', default='dataset/oak_dataset/', help='datapath')
 parser.add_argument('--dataset', default='middlebury', help='dataset type')
-
 parser.add_argument('--outdir', default=None)           
-parser.add_argument('--loadstereomodel', required=True,
-                    help='load stereo model')             
-
-parser.add_argument('--no-cuda', action='store_true', default=False,
-                    help='disables CUDA training')
-parser.add_argument('--subs', default=None, nargs='+',
-                    help='subfolders in datapath')
-
-parser.add_argument('--iscale', type=int, default=1, 
-                    help='Downsampling factor')
-parser.add_argument('--oscale', type=int, default=1,
-                            help='Downsampling factor')
-
+parser.add_argument('--loadstereomodel', required=True, help='load stereo model')             
+parser.add_argument('--no-cuda', action='store_true', default=False, help='disables CUDA')
+parser.add_argument('--iscale', type=int, default=1, help='Downsampling factor for input images')
+parser.add_argument('--oscale', type=int, default=1, help='Downsampling factor for groundtruth')
 parser.add_argument('--vpp', action='store_true')
 parser.add_argument('--seed', type=int, default=1, metavar='S', help='random seed (default: 1)')
-parser.add_argument('--wsize', type=int, default=5, help='Patch size')
-parser.add_argument('--wsizeAgg_x', type=int, default=64, help='Patch size')
-parser.add_argument('--wsizeAgg_y', type=int, default=3, help='Patch size')
 
-parser.add_argument('--guideperc', type=float, default=0.05)
-parser.add_argument('--blending', type=float, default=0.1, help='Pattern alpha blending')
+parser.add_argument('--wsize', type=int, default=3, help='Patch size')
+parser.add_argument('--wsizeAgg_x', type=int, default=64, help='Patch width for histogram pattern search')
+parser.add_argument('--wsizeAgg_y', type=int, default=3, help='Patch height for histogram pattern search')
+parser.add_argument('--guideperc', type=float, default=0.05, help='Sampling percentage for datasets without raw hints')
+parser.add_argument('--blending', type=float, default=0.4, help='Pattern alpha blending')
 parser.add_argument('--valsize', type=int, default=0, help='validation max size (0=unlimited)')
-parser.add_argument('--normalize', action='store_true')
-parser.add_argument('--maskocc', action='store_true')
+parser.add_argument('--normalize', action='store_true', help="Normalize RAFT-Stereo input between [-1,1] instead of [0,1]")
+parser.add_argument('--maskocc', action='store_true', help='Use occlusion mask during virtual projection')
 parser.add_argument('--cblending', type=float, default=0.0, help='Pattern alpha blending on occluded points')
-parser.add_argument('--discard_occ', action='store_true')
-parser.add_argument('--r2l', action='store_true')
-parser.add_argument('--colormethod', default='rnd', choices=['rnd', 'maxDistance'])
-parser.add_argument('--uniform_color', action='store_true')
-parser.add_argument('--guided', action='store_true')
-parser.add_argument('--tries', type=int, default=1)
+parser.add_argument('--discard_occ', action='store_true', help='Discard occluded points')
+parser.add_argument('--r2l', action='store_true', help="Right to left virtual projection")
+parser.add_argument('--colormethod', default='rnd', choices=['rnd', 'maxDistance'], help='Virtual pattering method (random (vi) or histogram based (vii))')
+parser.add_argument('--uniform_color', action='store_true', help='Enable patches with uniform color')
+parser.add_argument('--guided', action='store_true', help='Use Guided Stereo Matching strategy')
+parser.add_argument('--tries', type=int, default=1, help='Repeat the experiment n times and returns the mean results')
+
+#TPAMI new arguments
+parser.add_argument('--bilateralpatch', action='store_true', help='Use adaptive patch based on bilateral filter')
+parser.add_argument('--bilateral_spatial_variance', type=float, default=1, help='Spatial variance of the adaptive patch')
+parser.add_argument('--bilateral_color_variance', type=float, default=2, help='Color variance of the adaptive patch')
+parser.add_argument('--bilateral_threshold', type=float, default=.001, help='Adaptive patch classification threshold')
+parser.add_argument('--distancepatch', action='store_true', help='Use distance-based patch size')
+parser.add_argument('--distance_gamma', type=float, default=.3, help='Distance-based patch size curve hyper-parameter')
+
+parser.add_argument('--csv_path', default=None, help='Save experiment\'s results in a CSV file')
+parser.add_argument('--search_header', action='store_true', help='Store search arguments inside CSV file')
+parser.add_argument('--verbose', action='store_true', help='Show intermediate results during experiment')
+parser.add_argument('--errormetric', default='bad 3.0', choices=['bad 1.0', 'bad 2.0', 'bad 3.0', 'bad 4.0', 'avgerr', 'rms'], help='Metric used for errormap\'s text')
+parser.add_argument('--dilation', type=int, default=1, help='Use dilation for saved results (hints, errormaps, ...)')
+
+parser.add_argument('--rsgm_subpixel', action='store_true', help='Enable RSGM with subpixel disparities to reproduce TPAMI experiments.')
 
 args = parser.parse_args()
 
@@ -120,7 +123,10 @@ def run(data):
 
     # GENERATE PATTERN   
     if 'hints' not in data:   
-        data['hints'], data['validhints'] = sample_hints(data['gt'], data['validgt']>0, probability=args.guideperc)  
+        if 'raw' not in data:
+            data['hints'], data['validhints'] = sample_hints(data['gt'], data['validgt']>0, probability=args.guideperc)  
+        else:
+            data['hints'], data['validhints'] = sample_hints(data['raw'], data['validraw']>0, probability=args.guideperc) 
 
     if args.stereomodel != 'rsgm' and args.iscale != 1:
         data['im2'] = F.interpolate(data['im2'], scale_factor=1./args.iscale)
@@ -151,9 +157,23 @@ def run(data):
     
     data['im2_blended'], data['im3_blended'] = vpp( (255*data['im2'][0].permute(1,2,0).numpy()).astype(np.uint8),
                                                     (255*data['im3'][0].permute(1,2,0).numpy()).astype(np.uint8),
-                                                    data['hints'][0,0].numpy(), blending=args.blending, wsize=wsize, wsizeAgg_x=args.wsizeAgg_x, wsizeAgg_y=args.wsizeAgg_y,
-                                                      c_occ=args.cblending, g_occ=mask_occ,
-                                                      left2right= (not args.r2l), method=args.colormethod, uniform_color=args.uniform_color )
+                                                    data['hints'][0,0].numpy(),
+                                                    blending=args.blending,
+                                                    use_distance_patch=args.distancepatch,
+                                                    distance_gamma=args.distance_gamma,
+                                                    use_bilateral_patch=args.bilateralpatch,
+                                                    bilateral_o_xy=args.bilateral_spatial_variance,
+                                                    bilateral_o_i=args.bilateral_color_variance,
+                                                    bilateral_th=args.bilateral_threshold,
+                                                    wsize=wsize,
+                                                    wsizeAgg_x=args.wsizeAgg_x,
+                                                    wsizeAgg_y=args.wsizeAgg_y,
+                                                    c_occ=args.cblending,
+                                                    g_occ=mask_occ,
+                                                    left2right=(not args.r2l),
+                                                    method=args.colormethod,
+                                                    uniform_color=args.uniform_color,
+                                                    discard_occ=args.discard_occ, )
 
 
     data['im2_blended'] = torch.from_numpy(data['im2_blended']/255.).permute(2,0,1).unsqueeze(0).float()
@@ -200,7 +220,7 @@ def run(data):
             else:
                 tmphints,tmpvalidhints = 2*[None]
 
-            dmap = compute_rsgm(left, left_vpp, right_vpp, hints=tmphints, validhints=tmpvalidhints, dmax=args.maxdisp)
+            dmap = compute_rsgm(left, left_vpp, right_vpp, hints=tmphints, validhints=tmpvalidhints, dmax=args.maxdisp, subpixel=args.rsgm_subpixel)
             pred_disps_list.append(torch.from_numpy(dmap).unsqueeze(0).unsqueeze(0))
         pred_disps = torch.cat(pred_disps_list, 0)
     elif args.stereomodel == 'raft-stereo':
@@ -237,6 +257,37 @@ def run(data):
 
     return result
 
+def write_csv_header(file, args, metrics):
+    if args.search_header:
+        header = "VPP,GUIDED,WSIZE,BLENDING,COLORMETHOD,UNIFORM_COLOR,BILATERALPATCH,DISTANCEPATCH,BILATERAL_XY,BILATERAL_I,BILATERAL_TH,DISTANCE_GAMMA,MASKOCC,DISCARD_OCC,"
+    else:
+        header = "VPP,GUIDED,GUIDEPERC,DATASET,DATAPATH,STEREOMODEL,STEREOMODEL_PATH,TRIES,ISCALE,MAXDISP,BLENDING,NORMALIZE,"
+    keys = list(metrics.keys())
+    for k in keys[:-1]:
+        header += f"{k.upper()},"
+    header += f"{keys[-1].upper()}\n"
+
+    file.write(header)
+
+def write_csv_row(file, args, metrics):
+    if args.search_header:
+        parameters = f'{args.vpp},{args.guided},{args.wsize},{args.blending},{args.colormethod},{args.uniform_color},{args.bilateralpatch},{args.distancepatch},{args.bilateral_spatial_variance},{args.bilateral_color_variance},{args.bilateral_threshold},{args.distance_gamma},{args.maskocc},{args.discard_occ},'
+    else:
+        parameters = f"{args.vpp},{args.guided},{args.guideperc},{args.dataset},{args.datapath},{args.stereomodel},{args.loadstereomodel},{args.tries},{args.iscale},{args.maxdisp},{args.blending},{args.normalize},"
+    keys = list(metrics.keys())
+    for k in keys[:-1]: 
+        if 'bad' not in k:
+            parameters += f"{metrics[k]:.2f},"
+        else:
+            parameters += f"{metrics[k]*100:.2f},"
+    
+    if 'bad' not in keys[-1]:
+        parameters += f"{metrics[keys[-1]]:.2f}\n"
+    else:
+        parameters += f"{metrics[keys[-1]]*100:.2f}\n"
+
+    file.write(parameters)
+
 def main():
     args.test = True
     args.batch_size = 1
@@ -260,29 +311,46 @@ def main():
             result = run(datablob)
 
             if args.outdir is not None and asd == 0:
-                for dirname in ['dmap', 'left', 'right', 'errormap']:
+                for dirname in ['dmap', 'left', 'right', 'maemap', 'hints', 'metricmap']:
                     if not os.path.exists(os.path.join(args.outdir, dirname)):
                         os.mkdir(os.path.join(args.outdir, dirname))
 
                 max_val = torch.where(torch.isinf(datablob['gt'][0]), -float('inf'), datablob['gt'][0]).max()
 
-                errormap = result['errormap'][0,0]
+                myleft = cv2.cvtColor(result['im2_vpp'].squeeze().detach().cpu().numpy().astype(np.uint8), cv2.COLOR_RGB2BGR)
+                cv2.imwrite(os.path.join(args.outdir, "left", '%s.png'%(batch_idx)), myleft)
+                myright = cv2.cvtColor(result['im3_vpp'].squeeze().detach().cpu().numpy().astype(np.uint8), cv2.COLOR_RGB2BGR)
+                cv2.imwrite(os.path.join(args.outdir, "right", '%s.png'%(batch_idx)), myright)
 
-                errormap_img = cv2.applyColorMap((255*errormap/np.max(errormap)).astype(np.uint8), cv2.COLORMAP_MAGMA)
-                #errormap_img = (errormap_img * 0.7 + 0.3 * cv2.cvtColor((255*datablob['im2'].squeeze().permute(1,2,0).detach().cpu().numpy()).astype(np.uint8), cv2.COLOR_RGB2BGR)).astype(np.uint8)
-                errormap_img = cv2.putText(errormap_img, f"BAD 2.0: {100*result['bad 2.0']:.3f}%", (5,15), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255,255,255), 1)
-                errormap_img = cv2.putText(errormap_img, f"MAE: {result['avgerr']:.3f}px", (5,30), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255,255,255), 1)
+                mygt = cv2.applyColorMap(((torch.clamp(datablob['gt'][0,0],0,max_val)/max_val*255).detach().cpu().numpy()).astype(np.uint8), cmapy.cmap('magma'))
+                myhints = cv2.applyColorMap(((torch.clamp(datablob['hints'][0,0],0,max_val)/max_val*255).detach().cpu().numpy()).astype(np.uint8), cmapy.cmap('magma'))
+                maemap = color_error_image_kitti(torch.abs(datablob['gt'].cpu()-result['disp'].cpu()).squeeze().numpy(), scale=1, mask=datablob['gt']>0, dilation=args.dilation)
+                metricmap = guided_visualize(result['disp'].squeeze().cpu().numpy(), datablob['gt'].squeeze().cpu().numpy(), datablob['gt'].squeeze().cpu().numpy()>0, dilation=args.dilation)[args.errormetric]
 
-                cv2.imwrite(os.path.join(os.path.join(args.outdir, "dmap"), '%s.png'%(batch_idx)), cv2.applyColorMap(((torch.clamp(result['disp'][0],0,max_val)/max_val*255).detach().cpu().numpy()).astype(np.uint8), cmapy.cmap('magma')))
-                cv2.imwrite(os.path.join(os.path.join(args.outdir, "left"), '%s.png'%(batch_idx)), cv2.cvtColor(result['im2_vpp'].squeeze().detach().cpu().numpy().astype(np.uint8), cv2.COLOR_RGB2BGR))
-                cv2.imwrite(os.path.join(os.path.join(args.outdir, "right"), '%s.png'%(batch_idx)), cv2.cvtColor(result['im3_vpp'].squeeze().detach().cpu().numpy().astype(np.uint8), cv2.COLOR_RGB2BGR))
-                cv2.imwrite(os.path.join(os.path.join(args.outdir, "errormap"), '%s.png'%(batch_idx)), errormap_img )
+                if args.dilation>0:
+                    kernel = np.ones((args.dilation, args.dilation))
+                    kernelhints = np.ones((5, 5))
+                    mygt = cv2.dilate(mygt, kernel)
+                    maemap = cv2.dilate(maemap, kernel)
+                    metricmap = cv2.dilate(metricmap, kernel)
+                    myhints = cv2.dilate(myhints, kernelhints)
+
+                
+                cv2.imwrite(os.path.join(args.outdir, "hints", '%s.png'%(batch_idx)), myhints)
+                cv2.imwrite(os.path.join(args.outdir, "maemap", '%s.png'%(batch_idx)), maemap)
+                cv2.imwrite(os.path.join(args.outdir, "metricmap", '%s.png'%(batch_idx)), metricmap)
+
+                mydmap = cv2.applyColorMap(((torch.clamp(result['disp'][0],0,max_val)/max_val*255).detach().cpu().numpy()).astype(np.uint8), cmapy.cmap('magma'))
+                cv2.imwrite(os.path.join(args.outdir, "dmap", '%s.png'%(batch_idx)), mydmap)                
 
             for k in result:
                 if k != 'disp' and k!= 'errormap' and k != 'im2_vpp' and k != 'im3_vpp':
                     if k not in acc:
                         acc[k] = []
                     acc[k].append(result[k])
+                    
+                    if args.verbose:
+                        print(f"{batch_idx}) {k}: {result[k]}")
 
             pbar.update(1)
         pbar.close()
@@ -337,6 +405,17 @@ def main():
                 metrs += f" {acc_std[k]*100:.2f} &"
 
     print(metrs)
+
+    if args.csv_path is not None:
+        if os.path.exists(args.csv_path):
+            csv_file = open(args.csv_path, "a")
+        else:
+            csv_file = open(args.csv_path, "w")
+            write_csv_header(csv_file, args, acc_mean)
+        
+        write_csv_row(csv_file, args, acc_mean)
+
+        csv_file.close()
 
 
 if __name__ == '__main__':

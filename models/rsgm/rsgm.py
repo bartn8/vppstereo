@@ -247,7 +247,7 @@ def _left_right_check(dmapl,dmapr, th = 1):
     
     return mask_occ
 
-def compute_rsgm(left, left_vpp, right_vpp, hints=None, validhints=None, dmax=192, p1 = 11, p2min = 17, alpha = 0.5, gamma = 35, uniqueness=0.95):
+def compute_rsgm(left, left_vpp, right_vpp, hints=None, validhints=None, dmax=192, p1 = 11, p2min = 17, alpha = 0.5, gamma = 35, uniqueness=0.95, subpixel=True):
     ht,wt = left.shape[:2]
 
     #padding here all images then remove it after disparity computation
@@ -276,12 +276,18 @@ def compute_rsgm(left, left_vpp, right_vpp, hints=None, validhints=None, dmax=19
     c = [_pad[2], hd-_pad[3], _pad[0], wd-_pad[1]]
     fdmap = fdmap[c[0]:c[1], c[2]:c[3]]
     fdmap_right = fdmap_right[c[0]:c[1], c[2]:c[3]]
+
+    fdmap_copy = fdmap.copy()
     
     maskocc = _left_right_check(fdmap, fdmap_right, 1)
     fdmap[maskocc == 128] = 0
     fdmap = fdmap.astype(np.uint8)
     cv2.filterSpeckles(fdmap,0,200,10)
     fdmap = fdmap.astype(np.float32)
+
+    #Restore subpixel disparity
+    if subpixel:
+        fdmap[fdmap!=0] = fdmap_copy[fdmap!=0]
     
     _interpolate_background(fdmap)
 

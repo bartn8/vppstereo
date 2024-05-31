@@ -10,6 +10,7 @@ import os.path as osp
 
 
 from .frame_utils import read_gen, readPFM, readDispKITTI
+from .noise import add_kinectv1_noise
 
 class MiddleburyDataset(data.Dataset):
     def __init__(self, datapath, test=False, overfit=False):
@@ -401,6 +402,232 @@ class KITTI142Dataset(data.Dataset):
     def __len__(self):
         return len(self.image_list)
 
+class SimStereoDataset(data.Dataset):
+    def __init__(self, datapath, test=False, overfit=False):
+        self.augmentor = None
+        
+        self.is_test = test
+        self.disp_list = []
+        self.image_list = []
+        self.extra_info = []
+        self.calib_list = []
+
+        # Glue code between persefone data and my shitty format
+        image_list = sorted(glob(osp.join(datapath, 'rgbColormanaged/*_left.jpg')))
+        disp_list = sorted(glob(osp.join(datapath, 'pfmDisp/*_left.pfm')))
+
+        for i in range(len(image_list)):
+                self.image_list += [ [disp_list[i], image_list[i], image_list[i].replace('_left.jpg','_right.jpg')] ]
+                self.extra_info += [ image_list[i].split('/')[-1] ] # scene and frame_id
+                    
+        if overfit:
+            self.image_list = self.image_list[0:1]
+            self.extra_info = self.extra_info[0:1]
+
+    def __getitem__(self, index):
+        data = {}
+
+        data['im2'] = read_gen(self.image_list[index][1])
+        data['im3'] = read_gen(self.image_list[index][2])
+        
+        data['im2'] = np.array(data['im2']).astype(np.uint8)
+        data['im3'] = np.array(data['im3']).astype(np.uint8)
+
+        if self.is_test:
+            data['im2'] = data['im2'] / 255.0
+            data['im3'] = data['im3'] / 255.0
+
+        # grayscale images
+        if len(data['im2'].shape) == 2:
+            data['im2'] = np.tile(data['im2'][...,None], (1, 1, 3))
+        else:
+            data['im2'] = data['im2'][..., :3]                
+
+        if len(data['im3'].shape) == 2:
+            data['im3'] = np.tile(data['im3'][...,None], (1, 1, 3))
+        else:
+            data['im3'] = data['im3'][..., :3]
+
+        data['gt'], data['validgt'] = [None]*2
+
+        gt = readPFM(self.image_list[index][0])
+
+        data['gt'] = np.expand_dims(gt, -1)
+        data['validgt'] = np.logical_and(data['gt'] < 5000, data['gt'] > 0)
+
+        data['gt'] = np.array(data['gt']).astype(np.float32)
+        data['validgt'] = np.array(data['validgt']).astype(np.float32)
+
+        baseline = 0.16
+        focal = 888.89
+
+        gt_depth = gt.copy()
+        gt_depth[gt_depth>0] = (baseline*focal) / gt_depth[gt_depth>0]
+        raw_depth = add_kinectv1_noise(gt_depth)
+        raw_depth[raw_depth>0] = (baseline*focal) / raw_depth[raw_depth>0]
+
+        data['raw'] = np.expand_dims(raw_depth, -1)
+        data['validraw'] = np.logical_and(data['raw'] < 5000, data['raw'] > 0).astype(np.float32)
+        
+        if self.is_test:
+            data['im2_aug'] = data['im2']
+            data['im3_aug'] = data['im3']           
+
+        data['im2f'] = np.ascontiguousarray(data['im2'][:,::-1])
+        data['im3f'] = np.ascontiguousarray(data['im3'][:,::-1])
+
+        for k in data:
+            if data[k] is not None:
+                data[k] = torch.from_numpy(data[k]).permute(2, 0, 1).float() 
+        
+        data['extra_info'] = self.extra_info[index]
+
+        return data
+
+    def __len__(self):
+        return len(self.image_list)
+
+class SimStereoIRDataset(data.Dataset):
+    def __init__(self, datapath, test=False, overfit=False):
+        self.augmentor = None
+
+        self.is_test = test
+        self.disp_list = []
+        self.image_list = []
+        self.extra_info = []
+        self.calib_list = []
+
+        # Glue code between persefone data and my shitty format
+        image_list = sorted(glob(osp.join(datapath, 'nirColormanaged/*_left.jpg')))
+        disp_list = sorted(glob(osp.join(datapath, 'pfmDisp/*_left.pfm')))
+
+        for i in range(len(image_list)):
+                self.image_list += [ [disp_list[i], image_list[i], image_list[i].replace('_left.jpg','_right.jpg')] ]
+                self.extra_info += [ image_list[i].split('/')[-1] ] # scene and frame_id
+                    
+        if overfit:
+            self.image_list = self.image_list[0:1]
+            self.extra_info = self.extra_info[0:1]
+
+    def __getitem__(self, index):
+        data = {}
+
+        data['im2'] = read_gen(self.image_list[index][1])
+        data['im3'] = read_gen(self.image_list[index][2])
+        
+        data['im2'] = np.array(data['im2']).astype(np.uint8)
+        data['im3'] = np.array(data['im3']).astype(np.uint8)
+
+        if self.is_test:
+            data['im2'] = data['im2'] / 255.0
+            data['im3'] = data['im3'] / 255.0
+
+        # grayscale images
+        if len(data['im2'].shape) == 2:
+            data['im2'] = np.tile(data['im2'][...,None], (1, 1, 3))
+        else:
+            data['im2'] = data['im2'][..., :3]                
+
+        if len(data['im3'].shape) == 2:
+            data['im3'] = np.tile(data['im3'][...,None], (1, 1, 3))
+        else:
+            data['im3'] = data['im3'][..., :3]
+
+        data['gt'], data['validgt'] = [None]*2
+
+        data['gt'] = np.expand_dims( readPFM(self.image_list[index][0]), -1)
+        data['validgt'] = data['gt'] < 5000
+
+        data['gt'] = np.array(data['gt']).astype(np.float32)
+        data['validgt'] = np.array(data['validgt']).astype(np.float32)
+               
+        
+        if self.is_test:
+            data['im2_aug'] = data['im2']
+            data['im3_aug'] = data['im3']           
+
+        data['im2f'] = np.ascontiguousarray(data['im2'][:,::-1])
+        data['im3f'] = np.ascontiguousarray(data['im3'][:,::-1])
+
+        for k in data:
+            if data[k] is not None:
+                data[k] = torch.from_numpy(data[k]).permute(2, 0, 1).float() 
+        
+        data['extra_info'] = self.extra_info[index]
+
+        return data
+
+    def __len__(self):
+        return len(self.image_list)
+
+class MyCustomDataset(data.Dataset):
+    def __init__(self, datapath, test=False, overfit=False):
+        self.augmentor = None
+        
+        self.is_test = test
+        
+        self.disp_list = []
+        self.image_list = []
+        self.extra_info = []
+        self.calib_list = []
+
+        # Glue code between persefone data and my shitty format
+        image_list = sorted(glob(osp.join(datapath, 'left/*.png')))
+
+        for i in range(len(image_list)):
+            self.image_list += [ [image_list[i], image_list[i].replace('left', 'right'), image_list[i].replace('left', 'gt'), image_list[i].replace('left', 'hints')] ]
+            self.extra_info += [ image_list[i].split('/')[-1] ] # scene and frame_id
+                    
+        if overfit:
+            self.image_list = self.image_list[0:1]
+            self.extra_info = self.extra_info[0:1]
+
+    def __getitem__(self, index):
+
+        data = {}
+
+        if self.is_test:
+            data['im2'] = read_gen(self.image_list[index][0])
+            data['im3'] = read_gen(self.image_list[index][1])
+            
+            data['im2'] = np.array(data['im2']).astype(np.uint8)/ 255.0
+            data['im3'] = np.array(data['im3']).astype(np.uint8)/ 255.0
+
+            # grayscale images
+            if len(data['im2'].shape) == 2:
+                data['im2'] = np.tile(data['im2'][...,None], (1, 1, 3))
+            else:
+                data['im2'] = data['im2'][..., :3]                
+
+            if len(data['im3'].shape) == 2:
+                data['im3'] = np.tile(data['im3'][...,None], (1, 1, 3))
+            else:
+                data['im3'] = data['im3'][..., :3]
+
+            data['gt'], data['validgt'] = readDispKITTI(self.image_list[index][2])
+            data['hints'], data['validhints'] = readDispKITTI(self.image_list[index][3])
+
+            data['gt'] = np.array(data['gt']).astype(np.float32)
+            data['validgt'] = np.array(data['validgt']).astype(np.float32)
+
+            data['hints'] = np.array(data['hints']).astype(np.float32)
+            data['validhints'] = np.array(data['validhints']).astype(np.float32)
+            
+            data['gt'] = torch.from_numpy(data['gt']).permute(2, 0, 1).float()
+            data['validgt'] = torch.from_numpy(data['validgt']).permute(2, 0, 1).float()
+
+            data['hints'] = torch.from_numpy(data['hints']).permute(2, 0, 1).float()
+            data['validhints'] = torch.from_numpy(data['validhints']).permute(2, 0, 1).float()
+
+            data['im2'] = torch.from_numpy(data['im2']).permute(2, 0, 1).float()
+            data['im3'] = torch.from_numpy(data['im3']).permute(2, 0, 1).float()
+            
+            data['extra_info'] = self.extra_info[index]
+            
+            return data
+
+    def __len__(self):
+        return len(self.image_list)
 
 #----------------------------------------------------------------------------------------------
 
@@ -419,7 +646,9 @@ def fetch_dataloader(args):
             dataset = KITTI142Dataset(args.datapath,test=True)
             loader = data.DataLoader(dataset, batch_size=args.batch_size, 
                 pin_memory=False, shuffle=False, num_workers=1, drop_last=True)
-            print('Testing with %d image pairs' % len(dataset))       
+            print('Testing with %d image pairs' % len(dataset))     
+        else:
+            raise Exception("Not implemented yet")               
 
     elif args.dataset == 'middlebury_add':
         if args.test:
@@ -427,6 +656,8 @@ def fetch_dataloader(args):
             loader = data.DataLoader(dataset, batch_size=args.batch_size, 
                 pin_memory=False, shuffle=False, num_workers=1, drop_last=True)
             print('Testing with %d image pairs' % len(dataset))
+        else:
+            raise Exception("Not implemented yet")             
 
     elif args.dataset == 'middlebury2021':
         if args.test:
@@ -434,6 +665,8 @@ def fetch_dataloader(args):
             loader = data.DataLoader(dataset, batch_size=args.batch_size, 
                 pin_memory=False, shuffle=False, num_workers=1, drop_last=True)
             print('Testing with %d image pairs' % len(dataset))
+        else:
+            raise Exception("Not implemented yet")             
     
     elif args.dataset in ['middlebury', 'eth3d']:
         if args.test:
@@ -441,5 +674,34 @@ def fetch_dataloader(args):
             loader = data.DataLoader(dataset, batch_size=args.batch_size, 
                 pin_memory=False, shuffle=False, num_workers=1, drop_last=True)
             print('Testing with %d image pairs' % len(dataset))
+        else:
+            raise Exception("Not implemented yet")             
+
+    elif args.dataset == 'simstereo':
+        if args.test:
+            dataset = SimStereoDataset(args.datapath,test=True)
+            loader = data.DataLoader(dataset, batch_size=args.batch_size, 
+                pin_memory=False, shuffle=False, num_workers=1, drop_last=True)
+            print('Testing with %d image pairs' % len(dataset))
+        else:
+            raise Exception("Not implemented yet")             
+
+    elif args.dataset == 'simstereoir':
+        if args.test:
+            dataset = SimStereoIRDataset(args.datapath,test=True)
+            loader = data.DataLoader(dataset, batch_size=args.batch_size, 
+                pin_memory=False, shuffle=False, num_workers=1, drop_last=True)
+            print('Testing with %d image pairs' % len(dataset))
+        else:
+            raise Exception("Not implemented yet")             
+
+    elif args.dataset in ['dsec', 'm3ed', 'm3ed_active']:
+        if args.test:
+            dataset = MyCustomDataset(args.datapath, test=True)
+            loader = data.DataLoader(dataset, batch_size=args.batch_size, 
+                pin_memory=False, shuffle=False, num_workers=1, drop_last=True)
+            print('Testing with %d image pairs' % len(dataset))
+        else:
+            raise Exception("Not implemented yet")  
 
     return loader
