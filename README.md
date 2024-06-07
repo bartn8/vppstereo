@@ -20,6 +20,13 @@ University of Bologna<sup>2</sup>
  [Project Page](https://vppstereo.github.io/) | [Paper](https://vppstereo.github.io/assets/paper.pdf) |  [Supplementary](https://vppstereo.github.io/assets/paper-supp.pdf) | [Poster](https://vppstereo.github.io/assets/poster.pdf)
 </h2>
 
+<h2 align="center"> 
+
+ Stereo-Depth Fusion through Virtual Pattern Projection (Journal Extension)<br>
+
+ [Project Page](https://vppstereo.github.io/extension.html) | [Paper](https://arxiv.org/pdf/2406.04345) 
+</h2>
+
 **Note**: 🚧 Kindly note that this repository is currently in the development phase. We are actively working to add and refine features and documentation. We apologize for any inconvenience caused by incomplete or missing elements and appreciate your patience as we work towards completion.
 
 ## :bookmark_tabs: Table of Contents
@@ -47,7 +54,7 @@ We virtually project a pattern over the left and right images according to the s
 
 </h4>
 
-<img src="./images/framework.jpg" alt="Alt text" style="width: 800px;" title="architecture">
+<img src="./images/framework_new.jpg" alt="Alt text" style="width: 800px;" title="architecture">
 
 
 **Contributions:** 
@@ -57,6 +64,16 @@ We virtually project a pattern over the left and right images according to the s
 * When dealing with deep networks trained on synthetic data, it dramatically improves accuracy and shows a compelling ability to tackle domain shift issues, even without additional training or fine-tuning.
 
 * By neglecting a physical pattern projector, our solution works under sunlight, both indoors and outdoors, at long and close ranges with no additional processing cost for the original stereo matcher.
+
+
+**Extension Contributions:**
+
+* Acting before any processing occurs, it can be seamlessly deployed with any stereo algorithm or deep network without modifications and benefit from future progress in the field.
+
+* Moreover, in contrast to active stereo systems, using a depth sensor in place of a pattern projector: 
+  * It is more effective even in the specific application domain of projector-based systems and potentially less expensive; 
+  * It does not require additional hardware (e.g., additional RGB or IR cameras), as depth estimation is performed in the same target visual spectrum;
+  * The virtual projection paradigm can be tailored on the fly to adapt to the image content and is agnostic to dynamic objects and ego-motion.
 
 :fountain_pen: If you find this code useful in your research, please cite:
 
@@ -68,6 +85,17 @@ We virtually project a pattern over the left and right images according to the s
     month     = {October},
     year      = {2023},
     pages     = {18470-18482}
+}
+```
+
+```bibtex
+@misc{bartolomei2024stereodepth,
+      title={Stereo-Depth Fusion through Virtual Pattern Projection}, 
+      author={Luca Bartolomei and Matteo Poggi and Fabio Tosi and Andrea Conti and Stefano Mattoccia},
+      year={2024},
+      eprint={2406.04345},
+      archivePrefix={arXiv},
+      primaryClass={cs.CV}
 }
 ```
 
