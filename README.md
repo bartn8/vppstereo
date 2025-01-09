@@ -1,6 +1,6 @@
 
 <h1 align="center"> Active Stereo Without Pattern Projector (ICCV 2023) </h1> 
-<h1 align="center"> Stereo-Depth Fusion through Virtual Pattern Projection (Journal Extension) </h1> 
+<h1 align="center"> Active Stereo in the Wild through Virtual Pattern Projection (Journal Extension) </h1> 
 
 <br>
 
