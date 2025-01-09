@@ -4,7 +4,7 @@
 
 <br>
 
-:rotating_light: This repository contains download links to our code, and trained deep stereo models of our works  "**Active Stereo Without Pattern Projector**",  [ICCV 2023](https://iccv2023.thecvf.com/) and "**Stereo-Depth Fusion through Virtual Pattern Projection**", Journal Extension
+:rotating_light: This repository contains download links to our code, and trained deep stereo models of our works  "**Active Stereo Without Pattern Projector**",  [ICCV 2023](https://iccv2023.thecvf.com/) and "**Active Stereo in the Wild through Virtual Pattern Projection**", Journal Extension
  
 by [Luca Bartolomei](https://bartn8.github.io/)<sup>1,2</sup>, [Matteo Poggi](https://mattpoggi.github.io/)<sup>2</sup>, [Fabio Tosi](https://fabiotosi92.github.io/)<sup>2</sup>, [Andrea Conti](https://andreaconti.github.io/)<sup>2</sup>, and [Stefano Mattoccia](https://github.com/stefano-mattoccia)<sup>1,2</sup>
 
@@ -22,7 +22,7 @@ University of Bologna<sup>2</sup>
 
 <h2 align="center"> 
 
- Stereo-Depth Fusion through Virtual Pattern Projection (Journal Extension)<br>
+ Active Stereo in the Wild through Virtual Pattern Projection (Journal Extension)<br>
 
  [Project Page](https://vppstereo.github.io/extension.html) | [Paper](https://arxiv.org/pdf/2406.04345) 
 </h2>
