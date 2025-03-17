@@ -6,7 +6,7 @@
 
 :rotating_light: This repository contains download links to our code, and trained deep stereo models of our works  "**Active Stereo Without Pattern Projector**",  [ICCV 2023](https://iccv2023.thecvf.com/) and "**Active Stereo in the Wild through Virtual Pattern Projection**", Journal Extension
  
-by [Luca Bartolomei](https://bartn8.github.io/)<sup>1,2</sup>, [Matteo Poggi](https://mattpoggi.github.io/)<sup>2</sup>, [Fabio Tosi](https://fabiotosi92.github.io/)<sup>2</sup>, [Andrea Conti](https://andreaconti.github.io/)<sup>2</sup>, and [Stefano Mattoccia](https://github.com/stefano-mattoccia)<sup>1,2</sup>
+by [Luca Bartolomei](https://bartn8.github.io/)<sup>1,2</sup>, [Matteo Poggi](https://mattpoggi.github.io/)<sup>2</sup>, [Fabio Tosi](https://fabiotosi92.github.io/)<sup>2</sup>, [Andrea Conti](https://andreaconti.github.io/)<sup>2</sup>, and [Stefano Mattoccia](https://stefanomattoccia.github.io/)<sup>1,2</sup>
 
 Advanced Research Center on Electronic System (ARCES)<sup>1</sup>
 University of Bologna<sup>2</sup>
@@ -79,7 +79,7 @@ We virtually project a pattern over the left and right images according to the s
 
 ```bibtex
 @InProceedings{Bartolomei_2023_ICCV,
-    author    = {Bartolomei, Luca and Poggi, Matteo and Tosi, Fabio and Conti, Andrea and Mattoccia, Stefano},
+    author    = {Bartolomei, Luca and Poggi, Matteo and Tosi, Fabio and Conti, Andrea and , Stefano},
     title     = {Active Stereo Without Pattern Projector},
     booktitle = {Proceedings of the IEEE/CVF International Conference on Computer Vision (ICCV)},
     month     = {October},
@@ -91,7 +91,7 @@ We virtually project a pattern over the left and right images according to the s
 ```bibtex
 @misc{bartolomei2024stereodepth,
       title={Stereo-Depth Fusion through Virtual Pattern Projection}, 
-      author={Luca Bartolomei and Matteo Poggi and Fabio Tosi and Andrea Conti and Stefano Mattoccia},
+      author={Luca Bartolomei and Matteo Poggi and Fabio Tosi and Andrea Conti and Stefano },
       year={2024},
       eprint={2406.04345},
       archivePrefix={arXiv},
