@@ -1,10 +1,10 @@
 
 <h1 align="center"> Active Stereo Without Pattern Projector (ICCV 2023) </h1> 
-<h1 align="center"> Active Stereo in the Wild through Virtual Pattern Projection (Journal Extension) </h1> 
+<h1 align="center"> Active Stereo in the Wild through Virtual Pattern Projection (IJCV) </h1> 
 
 <br>
 
-:rotating_light: This repository contains download links to our code, and trained deep stereo models of our works  "**Active Stereo Without Pattern Projector**",  [ICCV 2023](https://iccv2023.thecvf.com/) and "**Active Stereo in the Wild through Virtual Pattern Projection**", Journal Extension
+:rotating_light: This repository contains download links to our code, and trained deep stereo models of our works  "**Active Stereo Without Pattern Projector**",  [ICCV 2023](https://iccv2023.thecvf.com/) and "**Active Stereo in the Wild through Virtual Pattern Projection**", IJCV
  
 by [Luca Bartolomei](https://bartn8.github.io/)<sup>1,2</sup>, [Matteo Poggi](https://mattpoggi.github.io/)<sup>2</sup>, [Fabio Tosi](https://fabiotosi92.github.io/)<sup>2</sup>, [Andrea Conti](https://andreaconti.github.io/)<sup>2</sup>, and [Stefano Mattoccia](https://stefanomattoccia.github.io/)<sup>1,2</sup>
 
@@ -22,9 +22,9 @@ University of Bologna<sup>2</sup>
 
 <h2 align="center"> 
 
- Active Stereo in the Wild through Virtual Pattern Projection (Journal Extension)<br>
+ Active Stereo in the Wild through Virtual Pattern Projection  (IJCV)<br>
 
- [Project Page](https://vppstereo.github.io/extension.html) | [Paper](https://arxiv.org/pdf/2406.04345) 
+ [Project Page](https://vppstereo.github.io/extension.html) | [Paper](https://arxiv.org/pdf/2406.04345v2) 
 </h2>
 
 **Note**: 🚧 Kindly note that this repository is currently in the development phase. We are actively working to add and refine features and documentation. We apologize for any inconvenience caused by incomplete or missing elements and appreciate your patience as we work towards completion.
@@ -78,24 +78,22 @@ We virtually project a pattern over the left and right images according to the s
 :fountain_pen: If you find this code useful in your research, please cite:
 
 ```bibtex
-@InProceedings{Bartolomei_2023_ICCV,
-    author    = {Bartolomei, Luca and Poggi, Matteo and Tosi, Fabio and Conti, Andrea and , Stefano},
-    title     = {Active Stereo Without Pattern Projector},
-    booktitle = {Proceedings of the IEEE/CVF International Conference on Computer Vision (ICCV)},
-    month     = {October},
-    year      = {2023},
-    pages     = {18470-18482}
+@inproceedings{bartolomei2023active,
+  title={Active stereo without pattern projector},
+  author={Bartolomei, Luca and Poggi, Matteo and Tosi, Fabio and Conti, Andrea and Mattoccia, Stefano},
+  booktitle={Proceedings of the IEEE/CVF International Conference on Computer Vision},
+  pages={18470--18482},
+  year={2023}
 }
 ```
 
 ```bibtex
-@misc{bartolomei2024stereodepth,
-      title={Stereo-Depth Fusion through Virtual Pattern Projection}, 
-      author={Luca Bartolomei and Matteo Poggi and Fabio Tosi and Andrea Conti and Stefano },
-      year={2024},
-      eprint={2406.04345},
-      archivePrefix={arXiv},
-      primaryClass={cs.CV}
+@article{bartolomei2025active,
+  title={Active Stereo in the Wild through Virtual Pattern Projection}, 
+  author={Bartolomei, Luca and Poggi, Matteo and Tosi, Fabio and Conti, Andrea and Mattoccia, Stefano},
+  journal={International Journal of Computer Vision},
+  year={2025},
+  publisher={Springer}
 }
 ```
 
